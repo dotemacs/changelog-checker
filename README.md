@@ -44,7 +44,7 @@ jobs:
           fetch-depth: 0
 
       - name: Check and Suggest Changelog
-        uses: dotemacs/changelog-checker@master
+        uses: dotemacs/changelog-checker@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           model: 'gpt-4o-mini'
