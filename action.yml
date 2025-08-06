@@ -1,0 +1,17 @@
+name: 'Changelog Checker'
+description: 'Checks if CHANGELOG.md is updated in PR and suggests changes if not'
+author: 'dotemacs'
+inputs:
+  github-token:
+    description: 'GitHub token with models:read permission'
+    required: true
+  model:
+    description: 'The model to use (default: gpt-4o-mini)'
+    required: false
+    default: 'gpt-4o-mini'
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
+branding:
+  icon: 'file-text'
+  color: 'blue'

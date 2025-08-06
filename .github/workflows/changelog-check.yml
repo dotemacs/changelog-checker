@@ -1,0 +1,27 @@
+name: Check Changelog
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  # Required for GitHub Models API access
+  models: read
+
+jobs:
+  check-changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check and Suggest Changelog
+        uses: ./
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          model: 'gpt-4o-mini'
