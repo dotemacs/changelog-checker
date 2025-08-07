@@ -1,8 +1,8 @@
 # Changelog Checker GitHub Action
 
-A GitHub Action that automatically checks if a PR includes updates to
-`CHANGELOG.md` and suggests appropriate changelog entries using GitHub
-Models if the updates are missing.
+A GitHub Action that automatically checks if a PR includes updates,
+via LLM, to `CHANGELOG.md` and suggests appropriate changelog entries
+using GitHub Models if the updates are missing.
 
 If the option `break-build: true` is set (by default it's set to
 `false`), it gives a suggestion for CHANGELOG.md update and fails the
@@ -67,6 +67,8 @@ GitHub Models is available for open source projects. The action uses the built-i
 |-------|-------------|----------|---------|
 | `github-token` | GitHub token with models:read permission | Yes | - |
 | `model` | The model to use | No | `gpt-4o-mini` |
+| `break-build` | Fail if there wasn't a CHANGELOG update | No | false |
+| `changelog-path` | Path to the CHANGELOG file | No | `CHANGELOG.md` |
 
 ## How It Works
 
