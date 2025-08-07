@@ -65,7 +65,7 @@ false, that can be added in the configuration:
 
 ```
       - name: Check and Suggest Changelog
-        uses: dotemacs/changelog-checker@main
+        uses: dotemacs/changelog-llm@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           model: 'gpt-4o-mini'
@@ -83,7 +83,7 @@ Add an option `changelog-path` which by default should point to
 CHANGELOG.md in the root of the repo.
 
 Potential configuration example:
-  - uses: dotemacs/changelog-checker@main
+  - uses: dotemacs/changelog-llm@main
     with:
       github-token: ${{ secrets.GITHUB_TOKEN }}
       changelog-path: 'docs/CHANGELOG.md'  # or 'HISTORY.md' or 'packages/*/CHANGELOG.md'

@@ -1,5 +1,5 @@
-name: 'Changelog Checker'
-description: 'Checks if CHANGELOG.md is updated in PR and suggests changes if not'
+name: 'Changelog LLM'
+description: 'Checks if CHANGELOG.md is updated in PR and suggests changes'
 author: 'dotemacs'
 inputs:
   github-token:

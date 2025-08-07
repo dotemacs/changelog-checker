@@ -1,5 +1,5 @@
 {
-  "name": "changelog-checker-action",
+  "name": "changelog-llm-action",
   "version": "1.0.0",
   "description": "GitHub Action to check and suggest CHANGELOG.md updates",
   "main": "dist/index.js",

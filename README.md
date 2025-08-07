@@ -1,4 +1,4 @@
-# Changelog Checker GitHub Action
+# Changelog LLM GitHub Action
 
 A GitHub Action that automatically checks if a PR includes updates,
 via LLM, to `CHANGELOG.md` and suggests appropriate changelog entries
@@ -21,7 +21,7 @@ job, to signal that the the CHANGELOG.md should be updated.
 
 ### 1. Add the Action to Your Workflow
 
-Create `.github/workflows/changelog-check.yml` below and **thats it**!
+Create `.github/workflows/changelog-llm.yml` below and **thats it**!
 
 OK, edit the parameters to your liking, like `model`.
 
@@ -48,7 +48,7 @@ jobs:
           fetch-depth: 0
 
       - name: Check and Suggest Changelog
-        uses: dotemacs/changelog-checker@main
+        uses: dotemacs/changelog-llm@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           model: 'gpt-4o-mini'
