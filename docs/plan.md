@@ -1,5 +1,7 @@
 # Plan
 
+## The summary
+
 Create GitHub action that checks if the PR create has touched
 CHANGELOG.md, if it hasn't it should look at the commits in the PR and
 their descriptions as well as code changes and create a suggestion for
@@ -13,22 +15,9 @@ exist, create a comment stating that CHANGELOG.md should be created
 and then add a comment in the PR showing what should be added to
 CHANGELOG.md.
 
-Add an option `break-build: true|false`, with default setting being
-false, that can be added in the configuration:
+## Constraints
 
-```
-      - name: Check and Suggest Changelog
-        uses: dotemacs/changelog-checker@main
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          model: 'gpt-4o-mini'
-          break-build: true
-```
-
-Which will output the message in the PR comment, but will not exit the
-run as success. Instead it should return a failed state, thus
-informing the user that they need to amend/update/create CHANGELOG.md
-in order for the job to pass.
+### Language
 
 The GitHub action should be written in TypeScript.
 
@@ -36,7 +25,11 @@ The action should use GitHub LLM models as per this blog post:
 
 https://github.blog/ai-and-ml/llms/solving-the-inference-problem-for-open-source-ai-projects-with-github-models/
 
+### API
+
 Use the GitHub endpoint instead of Azure one.
+
+### Prompt
 
 The system prompt should be defined as:
 
@@ -62,3 +55,35 @@ Guidelines:
 - Use present tense
 - Don't include PR numbers or technical jargon unless necessary
 - If multiple categories apply, choose the most significant one`
+
+## Options
+
+### break-build
+
+Add an option `break-build: true|false`, with default setting being
+false, that can be added in the configuration:
+
+```
+      - name: Check and Suggest Changelog
+        uses: dotemacs/changelog-checker@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          model: 'gpt-4o-mini'
+          break-build: true
+```
+
+Which will output the message in the PR comment, but will not exit the
+run as success. Instead it should return a failed state, thus
+informing the user that they need to amend/update/create CHANGELOG.md
+in order for the job to pass.
+
+### changelog-path
+
+Add an option `changelog-path` which by default should point to
+CHANGELOG.md in the root of the repo.
+
+Potential configuration example:
+  - uses: dotemacs/changelog-checker@main
+    with:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+      changelog-path: 'docs/CHANGELOG.md'  # or 'HISTORY.md' or 'packages/*/CHANGELOG.md'

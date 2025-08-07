@@ -7,13 +7,14 @@ export async function createPRSuggestion(
   octokit: InstanceType<typeof GitHub>,
   context: Context,
   pr: any,
-  entry: ChangelogEntry
+  entry: ChangelogEntry,
+  changelogPath: string = 'CHANGELOG.md'
 ): Promise<void> {
   try {
     const { data: changelog } = await octokit.rest.repos.getContent({
       owner: context.repo.owner,
       repo: context.repo.repo,
-      path: 'CHANGELOG.md',
+      path: changelogPath,
       ref: pr.base.ref,
     }).catch(() => {
       return { data: null };
@@ -27,8 +28,8 @@ export async function createPRSuggestion(
     const changelogExists = currentContent !== '';
     const updatedContent = generateUpdatedChangelog(currentContent, entry);
     const suggestion = changelogExists
-      ? createSuggestionComment(entry, updatedContent)
-      : createMissingChangelogComment(entry, updatedContent);
+      ? createSuggestionComment(entry, updatedContent, changelogPath)
+      : createMissingChangelogComment(entry, updatedContent, changelogPath);
 
     const { data: comments } = await octokit.rest.issues.listComments({
       owner: context.repo.owner,
@@ -61,8 +62,8 @@ export async function createPRSuggestion(
 
     // Try to create a mergeable file suggestion
     if (!changelogExists) {
-      // If CHANGELOG.md doesn't exist, create it as a new file suggestion
-      core.info('CHANGELOG.md does not exist, creating file creation suggestion...');
+      // If changelog doesn't exist, create it as a new file suggestion
+      core.info(`${changelogPath} does not exist, creating file creation suggestion...`);
 
       // Create a branch from the PR head
       const branchName = `changelog-suggestion-${pr.number}`;
@@ -79,12 +80,12 @@ export async function createPRSuggestion(
         await octokit.rest.repos.createOrUpdateFileContents({
           owner: context.repo.owner,
           repo: context.repo.repo,
-          path: 'CHANGELOG.md',
-          message: `Add CHANGELOG.md with entry for PR #${pr.number}`,
+          path: changelogPath,
+          message: `Add ${changelogPath} with entry for PR #${pr.number}`,
           content: Buffer.from(updatedContent).toString('base64'),
           branch: prData.head.ref,
         }).then(() => {
-          core.info('Successfully created CHANGELOG.md file suggestion in PR branch');
+          core.info(`Successfully created ${changelogPath} file suggestion in PR branch`);
         }).catch((error) => {
           core.warning(`Could not create file in PR branch: ${error.message}`);
         });
@@ -92,14 +93,14 @@ export async function createPRSuggestion(
         core.warning(`Could not create mergeable suggestion: ${error}`);
       }
     } else {
-      // If CHANGELOG.md exists, try to create an inline suggestion
-      core.info('Creating inline suggestion for existing CHANGELOG.md...');
+      // If changelog exists, try to create an inline suggestion
+      core.info(`Creating inline suggestion for existing ${changelogPath}...`);
 
         // Get the current file from the PR branch
         const { data: prFile } = await octokit.rest.repos.getContent({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            path: 'CHANGELOG.md',
+            path: changelogPath,
             ref: pr.head.ref,
         }).catch(() => ({ data: null }));
 
@@ -111,13 +112,13 @@ export async function createPRSuggestion(
             await octokit.rest.repos.createOrUpdateFileContents({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                path: 'CHANGELOG.md',
-                message: `Update CHANGELOG.md for PR #${pr.number}`,
+                path: changelogPath,
+                message: `Update ${changelogPath} for PR #${pr.number}`,
                 content: Buffer.from(updatedPrContent).toString('base64'),
                 sha: prFile.sha,
                 branch: pr.head.ref,
             }).then(() => {
-                core.info('Successfully updated CHANGELOG.md in PR branch');
+                core.info(`Successfully updated ${changelogPath} in PR branch`);
             }).catch((error) => {
                 core.warning(`Could not update file in PR branch: ${error.message}`);
             });
@@ -211,15 +212,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 `;
 }
 
-function createSuggestionComment(entry: ChangelogEntry, updatedContent: string): string {
-  return `## 📝 Changelog Suggestion
+function createSuggestionComment(entry: ChangelogEntry, updatedContent: string, changelogPath: string): string {
+  return `## Changelog Suggestion
 
-This PR does not include updates to \`CHANGELOG.md\`. Based on the changes, here's a suggested entry:
+This PR does not include updates to \`${changelogPath}\`. Based on the changes, here's a suggested entry:
 
 **Category:** \`${entry.category}\`
 **Description:** ${entry.description}
 
-### Suggested CHANGELOG.md entry:
+### Suggested ${changelogPath} entry:
 
 \`\`\`markdown
 ### ${entry.category}
@@ -227,7 +228,7 @@ This PR does not include updates to \`CHANGELOG.md\`. Based on the changes, here
 \`\`\`
 
 <details>
-<summary>Click to see the full updated CHANGELOG.md</summary>
+<summary>Click to see the full updated ${changelogPath}</summary>
 
 \`\`\`markdown
 ${updatedContent}
@@ -236,7 +237,7 @@ ${updatedContent}
 </details>
 
 ---
-*This suggestion was automatically generated. You can apply it directly in GitHub's UI or update your CHANGELOG.md manually.*`;
+*This suggestion was automatically generated. You can apply it directly in GitHub's UI or update your ${changelogPath} manually.*`;
 }
 
 function createInlineSuggestion(entry: ChangelogEntry): string {
@@ -246,12 +247,12 @@ function createInlineSuggestion(entry: ChangelogEntry): string {
 \`\`\``;
 }
 
-function createMissingChangelogComment(entry: ChangelogEntry, fullContent: string): string {
-  return `## Missing CHANGELOG.md
+function createMissingChangelogComment(entry: ChangelogEntry, fullContent: string, changelogPath: string): string {
+  return `## Missing ${changelogPath}
 
-This repository does not have a CHANGELOG.md file. It's recommended to create one to track changes over time.
+This repository does not have a ${changelogPath} file. It's recommended to create one to track changes over time.
 
-### Suggested CHANGELOG.md to create:
+### Suggested ${changelogPath} to create:
 
 \`\`\`markdown
 ${fullContent}

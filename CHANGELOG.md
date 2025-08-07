@@ -6,10 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-
+- Added the option `changelog-path`, for the user to specify the path
+  to the changelog
 - Added the option `break-build`, for the user to specify the job exit
   status
-
-### Added
-
 - Started the project

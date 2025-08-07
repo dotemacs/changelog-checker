@@ -9,6 +9,7 @@ async function run(): Promise<void> {
     const token = core.getInput('github-token', { required: true });
     const model = core.getInput('model') || 'gpt-4o-mini';
     const breakBuild = core.getInput('break-build') === 'true';
+    const changelogPath = core.getInput('changelog-path') || 'CHANGELOG.md';
 
     const octokit = github.getOctokit(token);
     const context = github.context;
@@ -24,7 +25,7 @@ async function run(): Promise<void> {
       return;
     }
 
-    core.info(`Checking PR #${pr.number} for CHANGELOG.md updates...`);
+    core.info(`Checking PR #${pr.number} for ${changelogPath} updates...`);
 
     const { data: files } = await octokit.rest.pulls.listFiles({
       owner: context.repo.owner,
@@ -32,16 +33,19 @@ async function run(): Promise<void> {
       pull_number: pr.number,
     });
 
-    const changelogModified = files.some(file => 
-      file.filename === 'CHANGELOG.md' || file.filename.endsWith('/CHANGELOG.md')
-    );
+    const changelogModified = files.some(file => {
+      // Normalize paths for comparison
+      const normalizedChangelog = changelogPath.startsWith('/') ? changelogPath.slice(1) : changelogPath;
+      const normalizedFilename = file.filename.startsWith('/') ? file.filename.slice(1) : file.filename;
+      return normalizedFilename === normalizedChangelog;
+    });
 
     if (changelogModified) {
-      core.info('CHANGELOG.md has been modified in this PR. No action needed.');
+      core.info(`${changelogPath} has been modified in this PR. No action needed.`);
       return;
     }
 
-    core.info('CHANGELOG.md not modified. Analyzing PR changes...');
+    core.info(`${changelogPath} not modified. Analyzing PR changes...`);
 
     const analysis = await analyzeChanges(octokit, context, pr);
     
@@ -49,10 +53,10 @@ async function run(): Promise<void> {
     const changelogEntry = await generateChangelogEntry(analysis, token, model);
     
     core.info('Creating PR suggestion...');
-    await createPRSuggestion(octokit, context, pr, changelogEntry);
+    await createPRSuggestion(octokit, context, pr, changelogEntry, changelogPath);
     
     if (breakBuild) {
-      core.setFailed('CHANGELOG.md needs to be updated. See PR comment for suggestions.');
+      core.setFailed(`${changelogPath} needs to be updated. See PR comment for suggestions.`);
     } else {
       core.info('Successfully created changelog suggestion!');
     }

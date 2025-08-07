@@ -13,6 +13,10 @@ inputs:
     description: 'Whether to fail the build if CHANGELOG.md is missing or needs updating'
     required: false
     default: 'false'
+  changelog-path:
+    description: 'Path to the changelog file (default: CHANGELOG.md)'
+    required: false
+    default: 'CHANGELOG.md'
 runs:
   using: 'node20'
   main: 'dist/index.js'
