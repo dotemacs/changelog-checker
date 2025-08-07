@@ -9,6 +9,10 @@ inputs:
     description: 'The model to use (default: gpt-4o-mini)'
     required: false
     default: 'gpt-4o-mini'
+  break-build:
+    description: 'Whether to fail the build if CHANGELOG.md is missing or needs updating'
+    required: false
+    default: 'false'
 runs:
   using: 'node20'
   main: 'dist/index.js'

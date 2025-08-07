@@ -35758,6 +35758,7 @@ async function run() {
     try {
         const token = core.getInput('github-token', { required: true });
         const model = core.getInput('model') || 'gpt-4o-mini';
+        const breakBuild = core.getInput('break-build') === 'true';
         const octokit = github.getOctokit(token);
         const context = github.context;
         if (context.eventName !== 'pull_request') {
@@ -35786,7 +35787,12 @@ async function run() {
         const changelogEntry = await (0, llm_1.generateChangelogEntry)(analysis, token, model);
         core.info('Creating PR suggestion...');
         await (0, pr_handler_1.createPRSuggestion)(octokit, context, pr, changelogEntry);
-        core.info('Successfully created changelog suggestion!');
+        if (breakBuild) {
+            core.setFailed('CHANGELOG.md needs to be updated. See PR comment for suggestions.');
+        }
+        else {
+            core.info('Successfully created changelog suggestion!');
+        }
     }
     catch (error) {
         if (error instanceof Error) {

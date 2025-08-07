@@ -8,6 +8,7 @@ async function run(): Promise<void> {
   try {
     const token = core.getInput('github-token', { required: true });
     const model = core.getInput('model') || 'gpt-4o-mini';
+    const breakBuild = core.getInput('break-build') === 'true';
 
     const octokit = github.getOctokit(token);
     const context = github.context;
@@ -50,7 +51,11 @@ async function run(): Promise<void> {
     core.info('Creating PR suggestion...');
     await createPRSuggestion(octokit, context, pr, changelogEntry);
     
-    core.info('Successfully created changelog suggestion!');
+    if (breakBuild) {
+      core.setFailed('CHANGELOG.md needs to be updated. See PR comment for suggestions.');
+    } else {
+      core.info('Successfully created changelog suggestion!');
+    }
   } catch (error) {
     if (error instanceof Error) {
       core.setFailed(error.message);

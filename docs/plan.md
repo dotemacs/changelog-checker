@@ -13,6 +13,23 @@ exist, create a comment stating that CHANGELOG.md should be created
 and then add a comment in the PR showing what should be added to
 CHANGELOG.md.
 
+Add an option `break-build: true|false`, with default setting being
+false, that can be added in the configuration:
+
+```
+      - name: Check and Suggest Changelog
+        uses: dotemacs/changelog-checker@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          model: 'gpt-4o-mini'
+          break-build: true
+```
+
+Which will output the message in the PR comment, but will not exit the
+run as success. Instead it should return a failed state, thus
+informing the user that they need to amend/update/create CHANGELOG.md
+in order for the job to pass.
+
 The GitHub action should be written in TypeScript.
 
 The action should use GitHub LLM models as per this blog post:

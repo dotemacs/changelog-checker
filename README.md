@@ -4,6 +4,10 @@ A GitHub Action that automatically checks if a PR includes updates to
 `CHANGELOG.md` and suggests appropriate changelog entries using GitHub
 Models if the updates are missing.
 
+If the option `break-build: true` is set (by default it's set to
+`false`), it gives a suggestion for CHANGELOG.md update and fails the
+job, to signal that the the CHANGELOG.md should be updated.
+
 ## Features
 
 - Automatically detects if `CHANGELOG.md` was modified in a PR
